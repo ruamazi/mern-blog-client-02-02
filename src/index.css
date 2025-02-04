@@ -1,0 +1,98 @@
+@import url("https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100..900;1,100..900&display=swap");
+@import "tailwindcss";
+
+@layer base {
+ body {
+  font-family: "Roboto", serif;
+  font-optical-sizing: auto;
+  background: #030014;
+  color: white;
+ }
+}
+
+.link-hover-effect {
+ position: relative;
+ text-decoration: none;
+ transition: color 0.3s ease;
+}
+
+.link-hover-effect::after {
+ content: "";
+ position: absolute;
+ left: 0;
+ bottom: -2px; /* Adjust this value to control the distance of the underline from the text */
+ width: 100%;
+ height: 2px; /* Thickness of the underline */
+ background: currentColor; /* Use the text color for the underline */
+ transform: scaleX(0); /* Start with no width */
+ transform-origin: right;
+ transition: transform 0.3s ease;
+ border-bottom: 2px dashed currentColor; /* Dashed underline */
+}
+
+.link-hover-effect:hover::after {
+ transform: scaleX(1); /* Expand the underline to full width */
+ transform-origin: left;
+}
+
+@keyframes float {
+ 0%,
+ 100% {
+  transform: translateY(0);
+ }
+ 50% {
+  transform: translateY(-10px);
+ }
+}
+
+.animate-float {
+ animation: float 4s ease-in-out infinite;
+}
+
+/* Fade-in-up Animation */
+@keyframes fade-in-up {
+ 0% {
+  opacity: 0;
+  transform: translateY(20px);
+ }
+ 100% {
+  opacity: 1;
+  transform: translateY(0);
+ }
+}
+
+.animate-fade-in-up {
+ animation: fade-in-up 1s ease-out forwards;
+}
+
+.delay-100 {
+ animation-delay: 0.1s;
+}
+
+.delay-200 {
+ animation-delay: 0.2s;
+}
+
+/* Text Gradient Animation */
+@keyframes text-gradient {
+ 0% {
+  background-position: 0% 50%;
+ }
+ 50% {
+  background-position: 100% 50%;
+ }
+ 100% {
+  background-position: 0% 50%;
+ }
+}
+
+.animate-text-gradient {
+ background: linear-gradient(90deg, #8b5cf6, #3b82f6, #8b5cf6);
+ background-size: 200% 200%;
+ background-clip: text;
+ -webkit-background-clip: text;
+ color: transparent;
+ animation: text-gradient 3s ease infinite;
+}
+
+/* Glow Effect for Button */
