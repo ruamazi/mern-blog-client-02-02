@@ -1,17 +1,18 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { apiUrl } from "./Register";
+import { useAuth } from "../../context/AuthContext";
 
 const Profile = () => {
  const [profilePicture, setProfilePicture] = useState("");
  const [oldPassword, setOldPassword] = useState("");
  const [newPassword, setNewPassword] = useState("");
  const [message, setMessage] = useState("");
+ const token = localStorage.getItem("token");
 
  const handleProfileUpdate = async (e) => {
   e.preventDefault();
   try {
-   const token = localStorage.getItem("token");
    await axios.put(
     `${apiUrl}/api/users/profile`,
     { profilePicture },
@@ -26,7 +27,6 @@ const Profile = () => {
  const handlePasswordChange = async (e) => {
   e.preventDefault();
   try {
-   const token = localStorage.getItem("token");
    await axios.put(
     `${apiUrl}/api/users/change-password`,
     { oldPassword, newPassword },
@@ -39,7 +39,7 @@ const Profile = () => {
  };
 
  return (
-  <div className="min-h-screen bg-gray-100 dark:bg-gray-900 p-4">
+  <div className="min-h-screen bg-gray-100 dark:bg-gray-900 p-4 ">
    <div className="container mx-auto">
     <h1 className="text-3xl font-bold mb-6 text-gray-800 dark:text-white">
      Profile
@@ -58,7 +58,7 @@ const Profile = () => {
       />
       <button
        type="submit"
-       className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-200"
+       className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-200 cursor-pointer"
       >
        Update Profile
       </button>
@@ -83,7 +83,7 @@ const Profile = () => {
       />
       <button
        type="submit"
-       className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-200"
+       className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-200 cursor-pointer"
       >
        Change Password
       </button>

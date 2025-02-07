@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { apiUrl } from "./Register";
 import { profilePlaceHolder } from "../../components/blog/BlogCard";
 import { MdDelete } from "react-icons/md";
 import { CiEdit } from "react-icons/ci";
-import { MdOutlineBlock } from "react-icons/md";
 import { useAuth } from "../../context/AuthContext";
 import Loader from "../../components/blog/Loader";
 import { FaLock } from "react-icons/fa6";
 import { FaLockOpen } from "react-icons/fa6";
+import { MdOutlineDeleteOutline } from "react-icons/md";
 
 const SingleBlog = () => {
  const { id } = useParams();
@@ -17,10 +17,11 @@ const SingleBlog = () => {
 
  const [comment, setComment] = useState("");
  const { currentUser } = useAuth();
- const navigate = useNavigate();
  const [deletingBlog, setDeletingBlog] = useState(false);
  const [commenting, setCommenting] = useState(false);
+ const [deletingComment, setDeletingComment] = useState(false);
  const [error, setError] = useState("");
+ const navigate = useNavigate();
  const token = localStorage.getItem("token");
 
  useEffect(() => {
@@ -85,6 +86,23 @@ const SingleBlog = () => {
   }
  };
 
+ const handleDeleteComment = async (commentId) => {
+  setDeletingComment(true);
+  try {
+   const resp = await axios.delete(`${apiUrl}/api/comments/${commentId}`, {
+    headers: {
+     Authorization: `Bearer ${token}`,
+    },
+   });
+   console.log(resp.data);
+   fetchBlog();
+  } catch (error) {
+   console.log(error);
+  } finally {
+   setDeletingComment(false);
+  }
+ };
+
  if (!blog) return <Loader />;
 
  return (
@@ -95,7 +113,10 @@ const SingleBlog = () => {
     </h1>
     <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
      <p className="text-gray-700 dark:text-gray-300 mb-4">{blog.content}</p>
-     <div className="flex items-center mb-6">
+     <Link
+      to={`/user/${blog.author.username}`}
+      className="flex items-center mb-6"
+     >
       <img
        src={blog.author.profilePicture || profilePlaceHolder}
        alt="Author"
@@ -104,7 +125,7 @@ const SingleBlog = () => {
       <span className="text-gray-700 dark:text-gray-400">
        {blog.author.username}
       </span>
-     </div>
+     </Link>
      {blog?.tags[0] != "" &&
       blog.tags.map((each, i) => (
        <span key={i} className="mr-2 bg-slate-500 px-2 py-1 text-sm">
@@ -143,7 +164,7 @@ const SingleBlog = () => {
      {blog.comments.map((comment) => (
       <div
        key={comment._id}
-       className="m-2 bg-black/30 p-2 rounded-xl shadow  max-w-4xl mx-auto"
+       className="m-2 bg-black/30 p-2 rounded-xl shadow  max-w-4xl mx-auto "
       >
        <div className="flex items-center">
         <img
@@ -155,9 +176,25 @@ const SingleBlog = () => {
          {comment.author.username}
         </span>
        </div>
-       <p className="text-gray-600 dark:text-gray-300 ml-10">
-        {comment.content}
-       </p>
+       <div className="flex items-center justify-between">
+        <p className="text-gray-600 dark:text-gray-300 ml-10">
+         {comment.content}
+        </p>
+
+        {(currentUser?._id === blog?.author._id ||
+         currentUser?.role === "admin" ||
+         currentUser._id === comment.author._id) && (
+         <button
+          onClick={() => {
+           handleDeleteComment(comment._id);
+          }}
+          disabled={deletingComment}
+          className=" cursor-pointer text-red-400 hover:text-red-500"
+         >
+          <MdOutlineDeleteOutline size={20} />
+         </button>
+        )}
+       </div>
       </div>
      ))}
      {blog.commentsEnabled && (

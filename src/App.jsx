@@ -11,6 +11,7 @@ import axios from "axios";
 import Loader from "./components/blog/Loader";
 import { useAuth } from "./context/AuthContext";
 import UpdateBlog from "./components/blog/UpdateBlog";
+import User from "./pages/blog/User";
 
 function App() {
  const { currentUser, setCurrentUser } = useAuth();
@@ -55,6 +56,7 @@ function App() {
     <Route path="/blog/:id" element={<SingleBlog />} />
     <Route path="/publish" element={<Publish />} />
     <Route path="/update-blog/:id" element={<UpdateBlog />} />
+    <Route path="/user/:username" element={<User />} />
    </Routes>
   </div>
  );
