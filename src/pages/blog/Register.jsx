@@ -2,7 +2,10 @@ import React, { useState } from "react";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
 
-export const apiUrl = "http://localhost:3030";
+export const apiUrl =
+ import.meta.env.VITE_ENV === "development"
+  ? "http://localhost:3030/"
+  : "https://mern-blog-api-02-02.onrender.com";
 
 const Register = () => {
  const [username, setUsername] = useState("");
