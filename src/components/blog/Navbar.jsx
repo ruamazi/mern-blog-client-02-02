@@ -1,6 +1,7 @@
 import { Link, useNavigate } from "react-router-dom";
 import { profilePlaceHolder } from "./BlogCard";
 import { useAuth } from "../../context/AuthContext";
+import { MdOutlineLogout } from "react-icons/md";
 
 const Navbar = () => {
  const { currentUser, setCurrentUser } = useAuth();
@@ -39,9 +40,9 @@ const Navbar = () => {
        </div>
        <button
         onClick={handleLogout}
-        className="text-gray-800 dark:text-white hover:text-gray-600"
+        className="flex items-center justify-center gap-1 text-gray-800 dark:text-white hover:text-gray-600 cursor-pointer"
        >
-        Logout
+        Logout <MdOutlineLogout size={20} />
        </button>
       </>
      ) : (

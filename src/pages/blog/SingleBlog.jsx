@@ -7,20 +7,22 @@ import { MdDelete } from "react-icons/md";
 import { CiEdit } from "react-icons/ci";
 import { useAuth } from "../../context/AuthContext";
 import Loader from "../../components/blog/Loader";
-import { FaLock } from "react-icons/fa6";
-import { FaLockOpen } from "react-icons/fa6";
+import { FaLock, FaLockOpen } from "react-icons/fa6";
 import { MdOutlineDeleteOutline } from "react-icons/md";
+import ConfirmationModal from "../../components/blog/ConfirmationModal";
 
 const SingleBlog = () => {
  const { id } = useParams();
  const [blog, setBlog] = useState(null);
-
  const [comment, setComment] = useState("");
  const { currentUser } = useAuth();
  const [deletingBlog, setDeletingBlog] = useState(false);
  const [commenting, setCommenting] = useState(false);
  const [deletingComment, setDeletingComment] = useState(false);
  const [error, setError] = useState("");
+ const [showDeleteBlogModal, setShowDeleteBlogModal] = useState(false); // State for blog deletion modal
+ const [showDeleteCommentModal, setShowDeleteCommentModal] = useState(false); // State for comment deletion modal
+ const [commentToDelete, setCommentToDelete] = useState(null); // Track which comment to delete
  const navigate = useNavigate();
  const token = localStorage.getItem("token");
 
@@ -66,6 +68,22 @@ const SingleBlog = () => {
    console.log(error);
   } finally {
    setDeletingBlog(false);
+   setShowDeleteBlogModal(false); // Close modal after deletion
+  }
+ };
+
+ const handleDeleteComment = async (commentId) => {
+  setDeletingComment(true);
+  try {
+   await axios.delete(`${apiUrl}/api/comments/${commentId}`, {
+    headers: { Authorization: `Bearer ${token}` },
+   });
+   fetchBlog(); // Refresh comments
+  } catch (error) {
+   console.log(error);
+  } finally {
+   setDeletingComment(false);
+   setShowDeleteCommentModal(false); // Close modal after deletion
   }
  };
 
@@ -85,24 +103,6 @@ const SingleBlog = () => {
    console.log(error);
   }
  };
-
- const handleDeleteComment = async (commentId) => {
-  setDeletingComment(true);
-  try {
-   const resp = await axios.delete(`${apiUrl}/api/comments/${commentId}`, {
-    headers: {
-     Authorization: `Bearer ${token}`,
-    },
-   });
-   console.log(resp.data);
-   fetchBlog();
-  } catch (error) {
-   console.log(error);
-  } finally {
-   setDeletingComment(false);
-  }
- };
-
  if (!blog) return <Loader />;
 
  return (
@@ -137,10 +137,10 @@ const SingleBlog = () => {
       <div className="flex gap-4 w-full my-2 p-2 flex-wrap">
        <button
         disabled={deletingBlog}
-        onClick={handleDeleteBlog}
+        onClick={() => setShowDeleteBlogModal(true)} // Show modal on delete click
         className="flex items-center gap-1 bg-red-400 px-2 hover:bg-red-500 cursor-pointer"
        >
-        {deletingBlog ? "Deliting..." : "Delete"} <MdDelete size={20} />
+        {deletingBlog ? "Deleting..." : "Delete"} <MdDelete size={20} />
        </button>
        <button
         onClick={() => navigate(`/update-blog/${blog._id}`)}
@@ -164,7 +164,7 @@ const SingleBlog = () => {
      {blog.comments.map((comment) => (
       <div
        key={comment._id}
-       className="m-2 bg-black/30 p-2 rounded-xl shadow  max-w-4xl mx-auto "
+       className="m-2 bg-black/30 p-2 rounded-xl shadow max-w-4xl mx-auto"
       >
        <div className="flex items-center">
         <img
@@ -186,10 +186,11 @@ const SingleBlog = () => {
          currentUser._id === comment.author._id) && (
          <button
           onClick={() => {
-           handleDeleteComment(comment._id);
+           setCommentToDelete(comment._id); // Set the comment to delete
+           setShowDeleteCommentModal(true); // Show the modal
           }}
           disabled={deletingComment}
-          className=" cursor-pointer text-red-400 hover:text-red-500"
+          className="cursor-pointer text-red-400 hover:text-red-500"
          >
           <MdOutlineDeleteOutline size={20} />
          </button>
@@ -212,12 +213,28 @@ const SingleBlog = () => {
         type="submit"
         className="mt-2 bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition duration-200 cursor-pointer"
        >
-        {commenting ? "Comminting..." : "Add Comment"}
+        {commenting ? "Commenting..." : "Add Comment"}
        </button>
       </form>
      )}
     </div>
    </div>
+
+   {/* Blog Deletion Modal */}
+   <ConfirmationModal
+    isOpen={showDeleteBlogModal}
+    onClose={() => setShowDeleteBlogModal(false)}
+    onConfirm={handleDeleteBlog}
+    message="Are you sure you want to delete this blog?"
+   />
+
+   {/* Comment Deletion Modal */}
+   <ConfirmationModal
+    isOpen={showDeleteCommentModal}
+    onClose={() => setShowDeleteCommentModal(false)}
+    onConfirm={() => handleDeleteComment(commentToDelete)}
+    message="Are you sure you want to delete this comment?"
+   />
   </div>
  );
 };
