@@ -128,9 +128,13 @@ const SingleBlog = () => {
      </Link>
      {blog?.tags[0] != "" &&
       blog.tags.map((each, i) => (
-       <span key={i} className="mr-2 bg-slate-500 px-2 py-1 text-sm">
-        {each.trim().charAt(0).toUpperCase() + each.trim().slice(1)}
-       </span>
+       <Link
+        to={`/blogs/${each}`}
+        key={i}
+        className="mr-2 bg-slate-500 px-2 py-1 text-sm"
+       >
+        #{each.trim().charAt(0).toUpperCase() + each.trim().slice(1)}
+       </Link>
       ))}
      {(currentUser?._id === blog?.author._id ||
       currentUser?.role === "admin") && (
@@ -183,7 +187,7 @@ const SingleBlog = () => {
 
         {(currentUser?._id === blog?.author._id ||
          currentUser?.role === "admin" ||
-         currentUser._id === comment.author._id) && (
+         currentUser?._id === comment.author._id) && (
          <button
           onClick={() => {
            setCommentToDelete(comment._id); // Set the comment to delete
@@ -198,7 +202,7 @@ const SingleBlog = () => {
        </div>
       </div>
      ))}
-     {blog.commentsEnabled && (
+     {currentUser && blog.commentsEnabled && (
       <form onSubmit={handleCommentSubmit} className="mt-6">
        <textarea
         placeholder="Add a comment..."

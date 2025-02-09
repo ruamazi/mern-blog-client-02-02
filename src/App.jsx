@@ -12,6 +12,7 @@ import Loader from "./components/blog/Loader";
 import { useAuth } from "./context/AuthContext";
 import UpdateBlog from "./components/blog/UpdateBlog";
 import User from "./pages/blog/User";
+import BlogsByTag from "./pages/blog/BlogsByTag";
 
 function App() {
  const { currentUser, setCurrentUser } = useAuth();
@@ -57,6 +58,7 @@ function App() {
     <Route path="/publish" element={<Publish />} />
     <Route path="/update-blog/:id" element={<UpdateBlog />} />
     <Route path="/user/:username" element={<User />} />
+    <Route path="/blogs/:tag" element={<BlogsByTag />} />
    </Routes>
   </div>
  );

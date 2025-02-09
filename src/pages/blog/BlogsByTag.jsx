@@ -1,35 +1,43 @@
-import React, { useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
-import { Link } from "react-router-dom";
-import BlogCard from "../components/blog/BlogCard";
-import { apiUrl } from "./blog/Register";
+import { Link, useParams } from "react-router-dom";
+import BlogCard from "../../components/blog/BlogCard";
+import { apiUrl } from "./Register";
+import Loader from "../../components/blog/Loader";
 
-const Home = () => {
+const BlogsByTag = () => {
+ const { tag } = useParams(); // Get the tag from the URL
  const [blogs, setBlogs] = useState([]);
  const [currentPage, setCurrentPage] = useState(1);
  const [totalPages, setTotalPages] = useState(1);
+ const [isLoading, setIsLoading] = useState(false);
 
  useEffect(() => {
-  fetchBlogs();
- }, [currentPage]);
+  fetchBlogsByTag();
+ }, [currentPage, tag]); // Re-fetch blogs when the page or tag changes
 
- const fetchBlogs = async () => {
+ const fetchBlogsByTag = async () => {
+  setIsLoading(true);
   try {
-   const response = await axios.get(
-    `${apiUrl}/api/blogs?page=${currentPage}&limit=10`
+   const resp = await axios.get(
+    `${apiUrl}/api/blogs/tag?tag=${tag}&page=${currentPage}&limit=10`
    );
-   setBlogs(response.data.blogs);
-   setTotalPages(response.data.totalPages);
+   setBlogs(resp.data.blogs);
+   setTotalPages(resp.data.totalPages);
   } catch (err) {
    console.error(err);
+  } finally {
+   setIsLoading(false);
   }
  };
+
+ if (isLoading) return <Loader />;
 
  return (
   <div className="min-h-screen bg-gray-100 dark:bg-gray-900 p-4">
    <div className="container mx-auto">
     <h1 className="text-3xl font-bold mb-6 text-gray-800 dark:text-white">
-     Latest Blogs
+     Blogs Tagged with: <span className="text-blue-500">{tag}</span>
     </h1>
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
      {blogs.map((blog) => (
@@ -60,4 +68,4 @@ const Home = () => {
  );
 };
 
-export default Home;
+export default BlogsByTag;
