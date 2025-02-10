@@ -20,9 +20,9 @@ const SingleBlog = () => {
  const [commenting, setCommenting] = useState(false);
  const [deletingComment, setDeletingComment] = useState(false);
  const [error, setError] = useState("");
- const [showDeleteBlogModal, setShowDeleteBlogModal] = useState(false); // State for blog deletion modal
- const [showDeleteCommentModal, setShowDeleteCommentModal] = useState(false); // State for comment deletion modal
- const [commentToDelete, setCommentToDelete] = useState(null); // Track which comment to delete
+ const [showDeleteBlogModal, setShowDeleteBlogModal] = useState(false);
+ const [showDeleteCommentModal, setShowDeleteCommentModal] = useState(false);
+ const [commentToDelete, setCommentToDelete] = useState(null);
  const navigate = useNavigate();
  const token = localStorage.getItem("token");
 
@@ -39,6 +39,43 @@ const SingleBlog = () => {
   }
  };
 
+ const renderContentWithMedia = (content) => {
+  const imageRegex = /(https?:\/\/.*\.(?:png|jpg|jpeg|gif))/i;
+  const youtubeRegex =
+   /(https?:\/\/www\.youtube\.com\/watch\?v=([a-zA-Z0-9_-]+))/i;
+
+  return content.split(/\s+/).map((word, index) => {
+   if (imageRegex.test(word)) {
+    return (
+     <img
+      key={index}
+      src={word}
+      alt="Blog content"
+      className="my-2 max-w-full h-auto"
+     />
+    );
+   } else if (youtubeRegex.test(word)) {
+    const match = word.match(youtubeRegex);
+    const videoId = match[2];
+    return (
+     <div key={index} className="my-2">
+      <iframe
+       width="560"
+       height="315"
+       src={`https://www.youtube.com/embed/${videoId}`}
+       title="YouTube video player"
+       frameBorder="0"
+       allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+       allowFullScreen
+      ></iframe>
+     </div>
+    );
+   } else {
+    return <span key={index}>{word} </span>;
+   }
+  });
+ };
+
  const handleCommentSubmit = async (e) => {
   e.preventDefault();
   setCommenting(true);
@@ -49,7 +86,7 @@ const SingleBlog = () => {
     { headers: { Authorization: `Bearer ${token}` } }
    );
    setComment("");
-   fetchBlog(); // Refresh comments
+   fetchBlog();
   } catch (err) {
    setError("Failed to post comment");
   } finally {
@@ -68,7 +105,7 @@ const SingleBlog = () => {
    console.log(error);
   } finally {
    setDeletingBlog(false);
-   setShowDeleteBlogModal(false); // Close modal after deletion
+   setShowDeleteBlogModal(false);
   }
  };
 
@@ -78,12 +115,12 @@ const SingleBlog = () => {
    await axios.delete(`${apiUrl}/api/comments/${commentId}`, {
     headers: { Authorization: `Bearer ${token}` },
    });
-   fetchBlog(); // Refresh comments
+   fetchBlog();
   } catch (error) {
    console.log(error);
   } finally {
    setDeletingComment(false);
-   setShowDeleteCommentModal(false); // Close modal after deletion
+   setShowDeleteCommentModal(false);
   }
  };
 
@@ -103,6 +140,7 @@ const SingleBlog = () => {
    console.log(error);
   }
  };
+
  if (!blog) return <Loader />;
 
  return (
@@ -112,7 +150,9 @@ const SingleBlog = () => {
      {blog.title}
     </h1>
     <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md">
-     <p className="text-gray-700 dark:text-gray-300 mb-4">{blog.content}</p>
+     <p className="text-gray-700 dark:text-gray-300 mb-4">
+      {renderContentWithMedia(blog.content)}
+     </p>
      <Link
       to={`/user/${blog.author.username}`}
       className="flex items-center mb-6"
@@ -141,7 +181,7 @@ const SingleBlog = () => {
       <div className="flex gap-4 w-full my-2 p-2 flex-wrap">
        <button
         disabled={deletingBlog}
-        onClick={() => setShowDeleteBlogModal(true)} // Show modal on delete click
+        onClick={() => setShowDeleteBlogModal(true)}
         className="flex items-center gap-1 bg-red-400 px-2 hover:bg-red-500 cursor-pointer"
        >
         {deletingBlog ? "Deleting..." : "Delete"} <MdDelete size={20} />
@@ -190,8 +230,8 @@ const SingleBlog = () => {
          currentUser?._id === comment.author._id) && (
          <button
           onClick={() => {
-           setCommentToDelete(comment._id); // Set the comment to delete
-           setShowDeleteCommentModal(true); // Show the modal
+           setCommentToDelete(comment._id);
+           setShowDeleteCommentModal(true);
           }}
           disabled={deletingComment}
           className="cursor-pointer text-red-400 hover:text-red-500"
@@ -224,7 +264,6 @@ const SingleBlog = () => {
     </div>
    </div>
 
-   {/* Blog Deletion Modal */}
    <ConfirmationModal
     isOpen={showDeleteBlogModal}
     onClose={() => setShowDeleteBlogModal(false)}
@@ -232,7 +271,6 @@ const SingleBlog = () => {
     message="Are you sure you want to delete this blog?"
    />
 
-   {/* Comment Deletion Modal */}
    <ConfirmationModal
     isOpen={showDeleteCommentModal}
     onClose={() => setShowDeleteCommentModal(false)}

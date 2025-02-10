@@ -3,17 +3,20 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import BlogCard from "../components/blog/BlogCard";
 import { apiUrl } from "./blog/Register";
+import Loader from "../components/blog/Loader";
 
 const Home = () => {
  const [blogs, setBlogs] = useState([]);
  const [currentPage, setCurrentPage] = useState(1);
  const [totalPages, setTotalPages] = useState(1);
+ const [isLoading, setIsLoading] = useState(false);
 
  useEffect(() => {
   fetchBlogs();
  }, [currentPage]);
 
  const fetchBlogs = async () => {
+  setIsLoading(true);
   try {
    const response = await axios.get(
     `${apiUrl}/api/blogs?page=${currentPage}&limit=10`
@@ -22,8 +25,12 @@ const Home = () => {
    setTotalPages(response.data.totalPages);
   } catch (err) {
    console.error(err);
+  } finally {
+   setIsLoading(false);
   }
  };
+
+ if (isLoading) return <Loader />;
 
  return (
   <div className="min-h-screen bg-gray-100 dark:bg-gray-900 p-4">
